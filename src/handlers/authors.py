@@ -8,6 +8,7 @@ from .. import keyboards
 from src.database import SessionLocal
 from src.models import Task
 from src.utils.validators import validate_deadline
+from ..states import TaskStates
 
 router = Router()
 
@@ -19,26 +20,26 @@ async def cmd_create_task(message: Message, state: FSMContext):
         "📝 Введите название задания:",
         reply_markup=keyboards.cancel_keyboard()
     )
-    await state.set_state("waiting_for_task_title")
+    await state.set_state(TaskStates.waiting_for_task_title)
 
 
-@router.message(F.text, StateFilter("waiting_for_task_title"))
+@router.message(F.text, StateFilter(TaskStates.waiting_for_task_title))
 async def process_task_title(message: Message, state: FSMContext):
     """Обработка названия задания."""
     await state.update_data(title=message.text)
     await message.answer("📄 Теперь введите описание:")
-    await state.set_state("waiting_for_task_description")
+    await state.set_state(TaskStates.waiting_for_task_description)
 
 
-@router.message(F.text, StateFilter("waiting_for_task_description"))
+@router.message(F.text, StateFilter(TaskStates.waiting_for_task_description))
 async def process_task_description(message: Message, state: FSMContext):
     """Обработка описания задания."""
     await state.update_data(description=message.text)
     await message.answer("⏳ Введите срок выполнения (например, 2024-12-31 18:00):")
-    await state.set_state("waiting_for_task_deadline")
+    await state.set_state(TaskStates.waiting_for_task_deadline)
 
 
-@router.message(F.text, StateFilter("waiting_for_task_deadline"))
+@router.message(F.text, StateFilter(TaskStates.waiting_for_task_deadline))
 async def process_task_deadline(message: Message, state: FSMContext):
     """Валидация срока выполнения."""
     try:

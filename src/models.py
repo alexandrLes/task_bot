@@ -20,14 +20,15 @@ class TaskStatus(str, Enum):
     REJECTED = "rejected"     # Отклонено автором
 
 class User(Base):
-    """Модель пользователя (автор или исполнитель)."""
     __tablename__ = "users"
 
-    user_id = Column(BigInteger, primary_key=True)  # Telegram ID
-    username = Column(String(64), nullable=True)    # @username
+    user_id = Column(BigInteger, primary_key=True)
+    username = Column(String(50), nullable=True)
     role = Column(SQLEnum(UserRole), nullable=False)
-    rating = Column(Float, default=0.0)            # Средний рейтинг
-    created_at = Column(DateTime, default=datetime.utcnow)
+    is_active = Column(Boolean, default=True)
+
+    def __repr__(self):
+        return f"User(id={self.user_id}, role={self.role})"
 
     # Связи (для SQLAlchemy)
     tasks_created = relationship("Task", back_populates="author")  # Задания, которые создал
